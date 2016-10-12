@@ -5,11 +5,19 @@ from django.db import models
 from django.db.models.fields import NOT_PROVIDED
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import (
+    get_language as django_get_language, ugettext_lazy as _)
 
 
 LANGUAGE_CODE = 0
 LANGUAGE_NAME = 1
+
+
+def get_language():
+    language = django_get_language()
+    if language is None:
+        language = settings.LANGUAGE_CODE
+    return language
 
 
 def get_languages():
@@ -93,7 +101,7 @@ def default_value(field):
 
 
 class TransMeta(models.base.ModelBase):
-    '''
+    """
     Metaclass that allow a django field, to store a value for
     every language. The syntax to us it is next:
 
@@ -110,7 +118,7 @@ class TransMeta(models.base.ModelBase):
     <field_name>_<language_code>. If just <field_name> is
     accessed, we'll get the value of the current language,
     or if null, the value in the default language.
-    '''
+    """
 
     def __new__(cls, name, bases, attrs):
         attrs = OrderedDict(attrs)
@@ -169,6 +177,9 @@ class LazyString(object):
     def __init__(self, proxy, lang):
         self.proxy = proxy
         self.lang = lang
+
+    def __str__(self):
+        return self.__unicode__()
 
     def __unicode__(self):
         return u'%s (%s)' % (self.proxy, self.lang)
