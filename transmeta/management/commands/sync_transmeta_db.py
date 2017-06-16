@@ -26,9 +26,11 @@ VALUE_DEFAULT = 'WITHOUT VALUE'
 try:
     from django.db import backend
     backend_is_mysql = 'mysql' in backend.__name__
+    backend_is_sqlite = 'sqlite' in backend.__name__
 except ImportError:
     # for django 1.8+
     backend_is_mysql = 'mysql' in settings.DATABASES['default']['ENGINE']
+    backend_is_sqlite = 'sqlite' in settings.DATABASES['default']['ENGINE']
 
 def ask_for_confirmation(sql_sentences, model_full_name, assume_yes):
     print ('\nSQL to synchronize "%s" schema:' % model_full_name)
@@ -194,17 +196,17 @@ class Command(BaseCommand):
                 field_column = new_field
                 col_type = self.get_type_of_db_field(field_name, model)
             field_sql = [style.SQL_FIELD(qn(field_column)), style.SQL_COLTYPE(col_type)]
-
-            alter_colum_set = 'ALTER COLUMN %s SET' % qn(field_column)
-            if default_f:
-                alter_colum_drop = 'ALTER COLUMN %s DROP' % qn(field_column)
-            not_null = style.SQL_KEYWORD('NOT NULL')
-
+            
             if backend_is_mysql:
                 alter_colum_set = 'MODIFY %s %s' % (qn(field_column), col_type)
                 not_null = style.SQL_KEYWORD('NULL')
                 if default_f:
                     alter_colum_drop = 'MODIFY %s %s' % (qn(field_column), col_type)
+            else:
+                alter_colum_set = 'ALTER COLUMN %s SET' % qn(field_column)
+                if default_f:
+                    alter_colum_drop = 'ALTER COLUMN %s DROP' % qn(field_column)
+                not_null = style.SQL_KEYWORD('NOT NULL')
 
             # column creation
             if not new_field in db_table_fields:
@@ -236,14 +238,15 @@ class Command(BaseCommand):
                                         'null': style.SQL_KEYWORD('NULL'),
                                         }))
                         # changing to NOT NULL after having data copied
-                        sql_output.append("ALTER TABLE %s %s %s" % \
+                        if not backend_is_sqlite:
+                            sql_output.append("ALTER TABLE %s %s %s" % \
                                         (qn(db_table), alter_colum_set, \
                                         style.SQL_KEYWORD('NOT NULL')))
                 else:
                     f_required = self.get_field_required_in_db(db_table,
                                                            field_column,
                                                            value_not_implemented=True)
-                    if f_required:
+                    if f_required and not backend_is_sqlite:
                         sql_output.append(("ALTER TABLE %s %s %s" % 
                                         (qn(db_table), alter_colum_drop, not_null)))
 
