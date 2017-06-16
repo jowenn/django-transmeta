@@ -197,6 +197,8 @@ This command also you can execute, when you want add a language to the site, or 
 
     TRANSMETA_VALUE_DEFAULT = '---'
 
+Note that ``sync_transmeta_db`` does not fully support SQLite.
+
 
 Admin integration
 -----------------
