@@ -137,7 +137,12 @@ If you need to add new languages to the existing ones you only need to change yo
         ('fr', ugettext('French')),
     )
 
-And execute a special ``sync_transmeta_db`` command::
+If you're using a version of Django with native migrations (version 1.7 or later), you can use 
+
+    $ ./manage.py makemigrations
+    $ ./manage.py migrate
+
+to change your database. otherwise, execute the special ``sync_transmeta_db`` command::
 
     $ ./manage.py sync_transmeta_db
 
@@ -173,7 +178,7 @@ To achieve this, first add ``price`` to the model's translatable fields list::
         class Meta:
             translate = ('description', 'body', 'price', )
 
-All that's left now is calling the ``sync_transmeta_db`` command to update the DB schema::
+Again, if you're using a version of Django with native migrations (version 1.7 or later), run makemigrations as above; otherwise call the ``sync_transmeta_db`` command to update the DB schema::
 
     $ ./manage.py sync_transmeta_db
 

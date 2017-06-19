@@ -29,6 +29,8 @@ try:
     backend_is_sqlite = 'sqlite' in backend.__name__
 except ImportError:
     # for django 1.8+
+    print ('\nIt appears that you are using a version of Django with support for migrations.')
+    print ('\nYou probably want to use Django\'s makemigrations instead.')
     backend_is_mysql = 'mysql' in settings.DATABASES['default']['ENGINE']
     backend_is_sqlite = 'sqlite' in settings.DATABASES['default']['ENGINE']
 
