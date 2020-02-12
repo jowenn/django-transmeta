@@ -37,8 +37,8 @@ long_description = (
     '********\n')
 
 setup(
-    name="django-transmeta",
-    version="0.7.3-eshellman",
+    name="django-transmeta-eh",
+    version="0.7.6",
     author="Yaco Sistemas S.L.",
     author_email="garcia.marc@gmail.com",
     description="Transmeta is an application for translatable content in Django's models.",
@@ -52,7 +52,7 @@ setup(
     ],
     license="LGPL 3",
     keywords="django,translation,internationalization,i18n,transmeta,models,translation models",
-    url='https://github.com/Yaco-Sistemas/django-transmeta',
+    url='https://github.com/eshellman/django-transmeta',
     packages=find_packages('.'),
     package_dir={'': '.'},
     zip_safe=False,
