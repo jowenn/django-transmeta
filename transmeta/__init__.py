@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import (
     get_language as django_get_language, gettext_lazy as _)
 
+from django.db.models.fields import TextField, CharField
 
 LANGUAGE_CODE = 0
 LANGUAGE_NAME = 1
@@ -151,7 +152,40 @@ class TransMeta(models.base.ModelBase):
             for lang in get_languages():
                 lang_code = lang[LANGUAGE_CODE]
                 lang_name = lang[LANGUAGE_NAME]
-                lang_attr = copy.copy(original_attr)
+#                lang_attr = copy.copy(original_attr)
+                LANGCLS=None
+                if isinstance(original_attr,TextField):
+                    LANGCLS=TextField
+                elif isinstance(original_attr,CharField):
+                    LANGCLS=CharField
+                else:
+                    raise Exception("invalid FieldType %r" % type(original_attr))
+                data=dict(verbose_name=original_attr.verbose_name,
+                    name=original_attr.name,
+                    primary_key=original_attr.primary_key,
+                    max_length=original_attr.max_length,
+                    unique=original_attr.unique,
+                    blank=original_attr.blank,
+                    null=original_attr.null,
+                    db_index=original_attr.db_index,
+#                    rel=original_attr.rel,
+                    default=original_attr.default,
+                    editable=original_attr.editable,
+                    serialize=original_attr.serialize,
+                    unique_for_date=original_attr.unique_for_date,
+                    unique_for_month=original_attr.unique_for_month,
+                    unique_for_year=original_attr.unique_for_year,
+                    choices=original_attr.choices,
+                    help_text=original_attr.help_text,
+                    db_column=original_attr.db_column,
+                    db_tablespace=original_attr.db_tablespace,
+                    auto_created=original_attr.auto_created,
+                    validators=original_attr._validators,
+                    error_messages=original_attr.error_messages,
+                    db_comment=original_attr.db_comment,
+                    db_default=original_attr.db_default,
+                )
+                lang_attr=LANGCLS(**data)
                 lang_attr.original_fieldname = field
                 lang_attr_name = get_real_fieldname(field, lang_code)
                 if lang_code != mandatory_language():
